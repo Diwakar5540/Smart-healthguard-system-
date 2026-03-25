@@ -1,0 +1,32 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String         @id @default(uuid())
+  name            String
+  email           String         @unique
+  password        String
+  fingerprintId   String?        @unique
+  bloodGroup      String?
+  healthRecords   HealthRecord[]
+  createdAt       DateTime       @default(now())
+}
+
+model HealthRecord {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  symptoms  Json     // To store the list of symptoms selected
+  result    Json     // To store the detection result (score, confidence, etc.)
+  type      String   // vitamin, dengue, typhoid
+  createdAt DateTime @default(now())
+}

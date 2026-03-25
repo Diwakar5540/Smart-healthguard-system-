@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+.DS_Store
+
+# Environment Variables
+.env
+.env.local
+.env.*
+
+# Build outputs
+build/
+dist/
+.next/
+
+# IDE files
+.vscode/
+.idea/
+
+# Database artifacts
+prisma/migrations/
+prisma/*.db
+prisma/*.db-journal
