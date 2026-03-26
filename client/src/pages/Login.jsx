@@ -111,21 +111,6 @@ export default function Login() {
             </button>
           </form>
 
-          <div className="relative">
-             <div className="absolute inset-x-0 top-1/2 h-px bg-slate-100" />
-             <div className="relative flex justify-center">
-                <span className="bg-white px-4 text-[10px] font-black uppercase text-slate-300 tracking-[0.2em]">OR BIOMETRIC FALLBACK</span>
-             </div>
-          </div>
-
-          <button
-            onClick={handleBiometric}
-            disabled={loading}
-            className="w-full py-5 border-2 border-slate-100 hover:border-medical-500 hover:bg-medical-50 text-slate-500 hover:text-medical-600 rounded-2xl font-black text-sm uppercase tracking-[0.2em] transition-all active:scale-[0.98] flex items-center justify-center gap-3 group"
-          >
-             <Fingerprint size={24} className="group-hover:scale-110 transition-transform" /> START BIOMETRIC LOGIN
-          </button>
-
           <footer className="text-center">
              <p className="text-sm font-medium text-slate-400">
                New here? <Link to="/register" className="text-medical-600 font-bold hover:underline">Secure an Invitation</Link>

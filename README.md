@@ -48,13 +48,20 @@ npm install
 npm run dev
 ```
 
-## 🧠 Medical Intelligence Logic
+## 🧠 AI-Medical Intelligence Logic
 
-### Vitamin Deficiency
-Analyzes a combination of physical symptoms (e.g., fatigue, hair loss) to score and detect potential deficiencies in Vitamin A, B12, C, D, and Calcium.
+### 📸 AI Multi-Image Vitamin Analyzer (Gemini 1.5 Flash)
+A state-of-the-art diagnostic tool that analyzes **physical symptoms from multiple photographs** (Eyes, Nails, Tongue, Skin). 
+-   **Engine**: Google Gemini 1.5 Flash Vision.
+-   **Output**: Detailed clinical assessment of Vitamin A, B12, C, D, and Iron deficiencies with severity scoring.
 
-### Disease Detection
-Combines clinical symptoms (e.g., joint pain, rash) with lab values (Platelets, Fever Temperature/Duration) to screen for Dengue and Typhoid with Moderate/High probability.
+### 🩸 AI Blood Test Disease Detector (Groq Llama 3)
+Analyzes laboratory report values (WBC, Platelets, Widal, NS1, SGOT/SGPT) to screen for **Dengue** and **Typhoid**.
+-   **Engine**: Groq (Llama 3 70B) for ultra-fast, sub-second clinical analysis.
+-   **Features**: Abnormal value logs, urgency indicators (Routine/Emergent), and diagnostic confidence scoring.
+
+### 📋 Rule-Based Health Screening
+Combines manual symptom checklists with specific biomarkers to provide a preliminary screening for high-probability infectious diseases.
 
 ## 🔒 Fingerprint Authentication Flow
 

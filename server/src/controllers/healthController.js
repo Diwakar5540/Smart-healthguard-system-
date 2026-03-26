@@ -1,4 +1,4 @@
-
+import { PrismaClient } from "@prisma/client";
 import { detectVitaminDeficiency, detectDisease } from "../utils/detectionLogic.js";
 
 const prisma = new PrismaClient();

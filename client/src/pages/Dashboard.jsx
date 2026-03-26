@@ -39,14 +39,6 @@ export default function Dashboard() {
             <p className="text-medical-50 text-base opacity-90 leading-relaxed">
               Scan your symptoms, track your vitals, and stay ahead of your wellness with Smart Health Guard.
             </p>
-            {!user?.fingerprintEnabled && (
-              <button
-                onClick={enrollFingerprint}
-                className="mt-6 flex items-center gap-2 bg-white/20 hover:bg-white/30 backdrop-blur-md px-5 py-2.5 rounded-xl text-sm font-bold border border-white/30 transition-all active:scale-95"
-              >
-                <Fingerprint size={18} /> ENABLE BIOMETRIC AUTH
-              </button>
-            )}
           </div>
           <motion.div 
             animate={{ scale: [1, 1.05, 1], rotate: [0, 2, 0] }}

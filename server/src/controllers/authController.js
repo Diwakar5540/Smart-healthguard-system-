@@ -10,20 +10,33 @@ const ORIGIN = process.env.ORIGIN || "http://localhost:5173";
 // Normal Email/Password Auth
 export const register = async (req, res) => {
   try {
+    console.log("Registration Attempt Body:", req.body);
     const { name, email, password, bloodGroup } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: "All mandatory fields (name, email, password) are required" });
+    }
     
     const existingUser = await prisma.user.findUnique({ where: { email } });
-    if (existingUser) return res.status(400).json({ message: "User already exists" });
+    if (existingUser) return res.status(400).json({ message: "Email already registered. Please login." });
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await prisma.user.create({
-      data: { name, email, password: hashedPassword, bloodGroup }
+      data: { 
+        name, 
+        email, 
+        password: hashedPassword, 
+        bloodGroup: bloodGroup || null 
+      }
     });
 
     res.status(201).json({ message: "User registered successfully", userId: user.id });
   } catch (error) {
-    console.error("Register Error:", error);
-    res.status(500).json({ message: "Internal server error" });
+    console.error("Register Error Details:", error);
+    if (error.code === 'P2002') {
+       return res.status(400).json({ message: "Email or Fingerprint ID already already in use." });
+    }
+    res.status(500).json({ message: `Registration failed: ${error.message || 'Server error'}` });
   }
 };
 
