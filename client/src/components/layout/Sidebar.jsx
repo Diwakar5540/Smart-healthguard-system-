@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, ShieldCheck, Activity, LogOut, ChevronLeft, ChevronRight, Menu, Droplets, Camera } from "lucide-react";
+import { LayoutDashboard, ShieldCheck, Activity, LogOut, ChevronLeft, ChevronRight, Droplets, Dna } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext.jsx";
 
@@ -41,6 +41,7 @@ export default function Sidebar() {
         <SidebarItem to="/vitamin" icon={ShieldCheck} label="Vitamin Checker" collapsed={collapsed} />
         <SidebarItem to="/disease" icon={Activity} label="Disease Detection" collapsed={collapsed} />
         <SidebarItem to="/fingerprint-lookup" icon={Droplets} label="Blood Group Lookup" collapsed={collapsed} />
+        <SidebarItem to="/blood-group" icon={Dna} label="Blood Group AI" collapsed={collapsed} />
       </nav>
 
       <button

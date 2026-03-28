@@ -9,6 +9,7 @@ import DiseaseDetector from "./pages/DiseaseDetector.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import FingerprintLookup from "./pages/FingerprintLookup.jsx";
+import BloodGroupDetector from "./pages/BloodGroupDetector.jsx";
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -68,6 +69,12 @@ export default function App() {
           <Route path="/fingerprint-lookup" element={
             <ProtectedRoute>
               <MainLayout><FingerprintLookup /></MainLayout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/blood-group" element={
+            <ProtectedRoute>
+              <MainLayout><BloodGroupDetector /></MainLayout>
             </ProtectedRoute>
           } />
 
