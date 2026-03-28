@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, ShieldCheck, Activity, LogOut, ChevronLeft, ChevronRight, Droplets, Dna } from "lucide-react";
+import { LayoutDashboard, ShieldCheck, Activity, LogOut, ChevronLeft, ChevronRight, Droplets, Dna, Fingerprint } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext.jsx";
 
@@ -38,10 +38,9 @@ export default function Sidebar() {
 
       <nav className="flex-1 space-y-2">
         <SidebarItem to="/" icon={LayoutDashboard} label="Dashboard" collapsed={collapsed} />
+        <SidebarItem to="/fingerprint-detect" icon={Fingerprint} label="AI Fingerprint Predictor" collapsed={collapsed} />
         <SidebarItem to="/vitamin" icon={ShieldCheck} label="Vitamin Checker" collapsed={collapsed} />
         <SidebarItem to="/disease" icon={Activity} label="Disease Detection" collapsed={collapsed} />
-        <SidebarItem to="/fingerprint-lookup" icon={Droplets} label="Blood Group Lookup" collapsed={collapsed} />
-        <SidebarItem to="/blood-group" icon={Dna} label="Blood Group AI" collapsed={collapsed} />
       </nav>
 
       <button

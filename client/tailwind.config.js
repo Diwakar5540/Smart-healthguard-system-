@@ -3,6 +3,7 @@ export default {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
+    "./fingerprint-blood-module/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {

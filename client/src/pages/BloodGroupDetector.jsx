@@ -1,7 +1,6 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Upload, Camera, RotateCcw, CheckCircle, XCircle, AlertTriangle, Droplets, History, X, Edit3, Save } from "lucide-react";
-import axios from "axios";
 import toast from "react-hot-toast";
 
 // ─── Blood Group Truth Table ───────────────────────────────────────────────
@@ -53,6 +52,15 @@ const BLOOD_COLORS = {
   "O+": "from-blue-500 to-cyan-600",
   "O-": "from-blue-400 to-sky-600",
 };
+
+// ─── Convert File to base64 ──────────────────────────────────────────────
+const fileToBase64 = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result.split(",")[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 
 export default function BloodGroupDetector() {
   const [image, setImage]           = useState(null);
@@ -123,31 +131,157 @@ export default function BloodGroupDetector() {
     }, "image/jpeg", 0.92);
   };
 
-  // ── API call ──────────────────────────────────────────────────────────
+  // ── Gemini Vision AI analysis ─────────────────────────────────────────
   const analyzeImage = async () => {
     if (!image) { toast.error("Please upload or capture an image first."); return; }
+
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    if (!apiKey) {
+      toast.error("Gemini API key not configured. Add VITE_GEMINI_API_KEY to your .env file.");
+      setError("Missing VITE_GEMINI_API_KEY. Get a free key at https://aistudio.google.com/ and add it to your client .env file.");
+      return;
+    }
+
     setLoading(true);
     setError(null);
     setResult(null);
     setOverrideMode(false);
 
     try {
-      const formData = new FormData();
-      formData.append("image", image);
+      // 1. Convert image to base64
+      const base64Data = await fileToBase64(image);
 
-      const { data } = await axios.post(
-        `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/blood-group/detect`,
-        formData,
-        { headers: { "Content-Type": "multipart/form-data" }, withCredentials: true }
+      // 2. Discover available Gemini models
+      console.log("Discovering available Gemini models...");
+      const modelsResponse = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`
+      );
+      const modelsData = await modelsResponse.json();
+      if (modelsData.error) throw new Error(modelsData.error.message);
+
+      const availableModels = modelsData.models.map((m) => m.name.split("/").pop());
+      console.log("Available models:", availableModels);
+
+      const modelToUse =
+        availableModels.find((m) => m.includes("1.5-flash")) ||
+        availableModels.find((m) => m.includes("1.5-pro")) ||
+        availableModels.find((m) => m.includes("pro-vision")) ||
+        availableModels[0];
+
+      if (!modelToUse) throw new Error("No compatible vision model found for your API key.");
+      console.log(`🚀 Using model: ${modelToUse}`);
+
+      // 3. Call Gemini Vision API with structured prompt
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${modelToUse}:generateContent?key=${apiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  {
+                    text: `You are a medical laboratory image analysis AI. Analyze this blood typing / blood grouping test card image.
+
+A blood typing test card has 3 wells/regions:
+- Anti-A well: contains Anti-A serum
+- Anti-B well: contains Anti-B serum  
+- Anti-D well: contains Anti-D (Rh) serum
+
+For each well, determine if there is AGGLUTINATION (clumping) or NO agglutination (smooth):
+- Agglutination = the blood has clumped together, forming visible granules or clots (the antigen is PRESENT)
+- No agglutination = the mixture remains smooth and uniform (the antigen is ABSENT)
+
+Blood group determination rules:
+- A+: Anti-A clumps, Anti-B smooth, Anti-D clumps
+- A-: Anti-A clumps, Anti-B smooth, Anti-D smooth
+- B+: Anti-A smooth, Anti-B clumps, Anti-D clumps
+- B-: Anti-A smooth, Anti-B clumps, Anti-D smooth
+- AB+: Anti-A clumps, Anti-B clumps, Anti-D clumps
+- AB-: Anti-A clumps, Anti-B clumps, Anti-D smooth
+- O+: Anti-A smooth, Anti-B smooth, Anti-D clumps
+- O-: Anti-A smooth, Anti-B smooth, Anti-D smooth
+
+IMPORTANT: Carefully analyze EACH well independently. Look at the actual texture and appearance of each well area. Clumped blood appears grainy, irregular, spotted or has visible aggregates. Smooth blood appears as a uniform, homogeneous red liquid.
+
+Respond with ONLY a JSON object with these exact keys:
+{
+  "anti_a": true or false (true = agglutination/clumping detected),
+  "anti_b": true or false (true = agglutination/clumping detected),
+  "anti_d": true or false (true = agglutination/clumping detected),
+  "blood_group": "the determined blood group like A+, B-, O+, AB+ etc",
+  "confidence": a number between 0.0 and 1.0 representing your confidence,
+  "reasoning": "brief explanation of what you observed in each well"
+}`
+                  },
+                  {
+                    inline_data: {
+                      mime_type: image.type,
+                      data: base64Data,
+                    },
+                  },
+                ],
+              },
+            ],
+            generationConfig: {
+              response_mime_type: "application/json",
+            },
+            safetySettings: [
+              { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+              { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
+              { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
+              { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" },
+            ],
+          }),
+        }
       );
 
-      setResult(data);
-      const entry = { ...data, timestamp: new Date().toISOString() };
+      const data = await response.json();
+
+      if (data.error) throw new Error(`Gemini API Error: ${data.error.message}`);
+
+      if (!data.candidates || !data.candidates[0]?.content) {
+        if (data.promptFeedback?.blockReason) {
+          throw new Error(`Image blocked by AI Safety: ${data.promptFeedback.blockReason}`);
+        }
+        throw new Error("AI could not analyze this image. Please try a clearer photo of a blood test card.");
+      }
+
+      const textResponse = data.candidates[0].content.parts[0].text;
+      console.log("Gemini raw response:", textResponse);
+      const aiResult = JSON.parse(textResponse);
+
+      // Validate and normalize the response
+      const anti_a = Boolean(aiResult.anti_a);
+      const anti_b = Boolean(aiResult.anti_b);
+      const anti_d = Boolean(aiResult.anti_d);
+
+      // Re-derive blood group from the well results to ensure consistency
+      const blood_group = determineBloodGroup(anti_a, anti_b, anti_d);
+      const confidence = typeof aiResult.confidence === "number"
+        ? Math.min(1, Math.max(0, aiResult.confidence))
+        : 0.75;
+
+      const finalResult = {
+        anti_a,
+        anti_b,
+        anti_d,
+        blood_group,
+        confidence,
+        reasoning: aiResult.reasoning || "",
+        note: "Powered by Google Gemini Vision AI",
+      };
+
+      setResult(finalResult);
+      const entry = { ...finalResult, timestamp: new Date().toISOString() };
       const updated = [entry, ...history].slice(0, 10);
       setHistory(updated);
       localStorage.setItem("bloodGroupHistory", JSON.stringify(updated));
+      toast.success(`Blood group detected: ${blood_group}`);
     } catch (err) {
-      const msg = err.response?.data?.error || "Analysis failed. Please try a clearer image.";
+      console.error("[BloodGroup] Gemini Analysis Error:", err);
+      const msg = err.message || "Analysis failed. Please try a clearer image.";
       setError(msg);
       toast.error(msg);
     } finally {
@@ -301,7 +435,7 @@ export default function BloodGroupDetector() {
                   className="flex-2 flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl bg-gradient-to-r from-red-500 to-rose-600 text-white font-semibold shadow-lg shadow-red-200 hover:shadow-xl transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {loading ? (
-                    <><div className="w-5 h-5 border-2 border-white/50 border-t-white rounded-full animate-spin" /> Analyzing...</>
+                    <><div className="w-5 h-5 border-2 border-white/50 border-t-white rounded-full animate-spin" /> Analyzing with AI...</>
                   ) : (
                     <><Droplets size={18} /> Detect Blood Group</>
                   )}
@@ -367,6 +501,9 @@ export default function BloodGroupDetector() {
                           </div>
                           <p className="text-slate-600 font-semibold text-sm">{(result.confidence * 100).toFixed(0)}% confidence</p>
                         </div>
+                      )}
+                      {result.reasoning && (
+                        <p className="text-slate-400 text-xs italic max-w-md mx-auto mt-2">{result.reasoning}</p>
                       )}
                       {result.overridden && (
                         <span className="inline-block bg-amber-100 text-amber-700 text-xs font-semibold px-3 py-1 rounded-full">Manually Overridden</span>

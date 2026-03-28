@@ -1,6 +1,7 @@
 import express from "express";
 import multer from "multer";
 import { detectBloodGroup } from "../controllers/bloodGroupController.js";
+import authMiddleware from "../middleware/auth.js";
 
 const router = express.Router();
 
@@ -18,6 +19,6 @@ const upload = multer({
 });
 
 // POST /api/blood-group/detect
-router.post("/detect", upload.single("image"), detectBloodGroup);
+router.post("/detect", authMiddleware, upload.single("image"), detectBloodGroup);
 
 export default router;
