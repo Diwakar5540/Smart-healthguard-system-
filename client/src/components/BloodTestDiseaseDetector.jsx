@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { 
-  Activity, 
-  Thermometer, 
-  Droplets, 
-  ClipboardList, 
-  AlertTriangle, 
-  ShieldAlert, 
-  Clock, 
+import {
+  Activity,
+  Thermometer,
+  Droplets,
+  ClipboardList,
+  AlertTriangle,
+  ShieldAlert,
+  Clock,
   ChevronRight,
   Loader2,
   Stethoscope,
@@ -118,15 +118,15 @@ export default function BloodTestDiseaseDetector() {
           'Authorization': `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-          model: "llama3-70b-8192",
+          model: "llama-3.3-70b-versatile",
           messages: [
-            { 
-              role: "system", 
-              content: "Act as a clinical diagnostic AI trained on hematology and infectious disease data. Analyze the provided blood test values for patterns consistent with Dengue fever or Typhoid fever. Using this clinical knowledge:\n\n" + 
-                      "Dengue: " + DISEASE_REFERENCE.dengue + "\n" +
-                      "Typhoid: " + DISEASE_REFERENCE.typhoid + "\n\n" +
-                      "Respond ONLY with a valid JSON object in this exact format:\n" +
-                      "{\n  \"diagnosis\": \"Dengue | Typhoid | Both | Neither | Inconclusive\",\n  \"confidence\": \"low | medium | high\",\n  \"severity\": \"mild | moderate | severe\",\n  \"dengue_indicators\": [\"list of values that suggest Dengue\"],\n  \"typhoid_indicators\": [\"list of values that suggest Typhoid\"],\n  \"abnormal_values\": [\n    {\n      \"parameter\": \"string\",\n      \"value\": \"string\",\n      \"normal_range\": \"string\",\n      \"status\": \"string\",\n      \"implication\": \"string\"\n    }\n  ],\n  \"recommendation\": \"string\",\n  \"urgency\": \"routine | urgent | emergency\",\n  \"disclaimer\": \"string\"\n}"
+            {
+              role: "system",
+              content: "Act as a clinical diagnostic AI trained on hematology and infectious disease data. Analyze the provided blood test values for patterns consistent with Dengue fever or Typhoid fever. Using this clinical knowledge:\n\n" +
+                "Dengue: " + DISEASE_REFERENCE.dengue + "\n" +
+                "Typhoid: " + DISEASE_REFERENCE.typhoid + "\n\n" +
+                "Respond ONLY with a valid JSON object in this exact format:\n" +
+                "{\n  \"diagnosis\": \"Dengue | Typhoid | Both | Neither | Inconclusive\",\n  \"confidence\": \"low | medium | high\",\n  \"severity\": \"mild | moderate | severe\",\n  \"dengue_indicators\": [\"list of values that suggest Dengue\"],\n  \"typhoid_indicators\": [\"list of values that suggest Typhoid\"],\n  \"abnormal_values\": [\n    {\n      \"parameter\": \"string\",\n      \"value\": \"string\",\n      \"normal_range\": \"string\",\n      \"status\": \"string\",\n      \"implication\": \"string\"\n    }\n  ],\n  \"recommendation\": \"string\",\n  \"urgency\": \"routine | urgent | emergency\",\n  \"disclaimer\": \"string\"\n}"
             },
             { role: "user", content: userMessage }
           ],
@@ -141,7 +141,7 @@ export default function BloodTestDiseaseDetector() {
       setResults(aiResponse);
     } catch (err) {
       console.error(err);
-      setError(`Analysis Error: ${err.message}. Ensure VITE_CLAUDE_API_KEY is configured.`);
+      setError(`Analysis Error: ${err.message}. Ensure VITE_GROQ_API_KEY is configured.`);
     } finally {
       setAnalyzing(false);
     }
@@ -177,12 +177,12 @@ export default function BloodTestDiseaseDetector() {
       <header className="mb-10 text-center md:text-left">
         <h2 className="text-4xl font-black text-slate-800 tracking-tighter uppercase">Blood Test Disease Detector</h2>
         <div className="flex flex-col md:flex-row items-center gap-4 mt-4">
-           <p className="px-4 py-2 bg-slate-100 rounded-2xl text-xs font-bold text-slate-500 flex items-center gap-2">
-             <Info size={14} /> Fill in only the values available in your report
-           </p>
-           <p className="px-4 py-2 bg-blue-100 rounded-2xl text-xs font-bold text-blue-600 flex items-center gap-2">
-             <ShieldCheck size={14} /> AI Clinical Analysis Mode
-           </p>
+          <p className="px-4 py-2 bg-slate-100 rounded-2xl text-xs font-bold text-slate-500 flex items-center gap-2">
+            <Info size={14} /> Fill in only the values available in your report
+          </p>
+          <p className="px-4 py-2 bg-blue-100 rounded-2xl text-xs font-bold text-blue-600 flex items-center gap-2">
+            <ShieldCheck size={14} /> AI Clinical Analysis Mode
+          </p>
         </div>
       </header>
 
@@ -201,7 +201,7 @@ export default function BloodTestDiseaseDetector() {
                       <label className="field-label block">{field.label}</label>
                       <div className="relative">
                         {field.type === 'select' ? (
-                          <select 
+                          <select
                             value={formData[field.id] || 'Not Done'}
                             onChange={(e) => handleInputChange(field.id, e.target.value)}
                             className="field-input appearance-none bg-slate-50"
@@ -210,7 +210,7 @@ export default function BloodTestDiseaseDetector() {
                           </select>
                         ) : (
                           <div className="flex items-center gap-2">
-                             <input 
+                            <input
                               type="text"
                               placeholder={field.range}
                               value={formData[field.id] || ''}
@@ -229,7 +229,7 @@ export default function BloodTestDiseaseDetector() {
             ))}
           </div>
 
-          <button 
+          <button
             onClick={runAnalysis}
             disabled={analyzing}
             className="analyze-btn flex items-center justify-center gap-4"
@@ -240,7 +240,7 @@ export default function BloodTestDiseaseDetector() {
               <><ClipboardList /> Analyze Blood Report</>
             )}
           </button>
-          
+
           {error && (
             <div className="mt-4 p-4 bg-red-50 text-red-600 rounded-2xl border border-red-100 flex items-center gap-3">
               <AlertTriangle size={18} />
@@ -250,126 +250,124 @@ export default function BloodTestDiseaseDetector() {
         </div>
       ) : (
         <div className="results-panel space-y-10 animate-in fade-in duration-700">
-           <div className={`diagnosis-badge ${
-             results.diagnosis.includes("Both") ? "diagnosis-both" :
-             results.diagnosis.includes("Dengue") ? "diagnosis-dengue" :
-             results.diagnosis.includes("Typhoid") ? "diagnosis-typhoid" :
-             "diagnosis-neither"
-           }`}>
-             <p className="text-[10px] font-black uppercase tracking-[0.5em] opacity-60 mb-4">Diagnostic Analysis Results</p>
-             <h3 className="text-6xl font-black uppercase tracking-tighter mb-6">{results.diagnosis}</h3>
-             <div className="flex items-center justify-center gap-4">
-                <span className="px-4 py-2 border-2 border-current/20 rounded-full text-xs font-black uppercase tracking-widest">
-                  {results.confidence} Confidence
-                </span>
-                <span className="px-4 py-2 border-2 border-current/20 rounded-full text-xs font-black uppercase tracking-widest">
-                  {results.severity} Severity
-                </span>
-                <span className={`urgency-badge urgency-${results.urgency}`}>
-                  {results.urgency} Priority
-                </span>
-             </div>
-           </div>
+          <div className={`diagnosis-badge ${results.diagnosis.includes("Both") ? "diagnosis-both" :
+              results.diagnosis.includes("Dengue") ? "diagnosis-dengue" :
+                results.diagnosis.includes("Typhoid") ? "diagnosis-typhoid" :
+                  "diagnosis-neither"
+            }`}>
+            <p className="text-[10px] font-black uppercase tracking-[0.5em] opacity-60 mb-4">Diagnostic Analysis Results</p>
+            <h3 className="text-6xl font-black uppercase tracking-tighter mb-6">{results.diagnosis}</h3>
+            <div className="flex items-center justify-center gap-4">
+              <span className="px-4 py-2 border-2 border-current/20 rounded-full text-xs font-black uppercase tracking-widest">
+                {results.confidence} Confidence
+              </span>
+              <span className="px-4 py-2 border-2 border-current/20 rounded-full text-xs font-black uppercase tracking-widest">
+                {results.severity} Severity
+              </span>
+              <span className={`urgency-badge urgency-${results.urgency}`}>
+                {results.urgency} Priority
+              </span>
+            </div>
+          </div>
 
-           <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-              <div className="space-y-6">
-                <div className="p-8 bg-white border border-slate-100 rounded-[2rem] shadow-sm">
-                   <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-2">
-                     <AlertTriangle size={14} className="text-red-500" /> Key Indicators
-                   </h4>
-                   <div className="space-y-6">
-                      <div className="space-y-4">
-                        <p className="text-[10px] font-black uppercase text-red-600 tracking-widest">Dengue Markers</p>
-                        <ul className="space-y-2">
-                           {results.dengue_indicators.map((item, i) => (
-                             <li key={i} className="text-sm font-bold text-slate-700 flex items-center gap-2">
-                               <ChevronRight size={14} className="text-red-300" /> {item}
-                             </li>
-                           ))}
-                           {results.dengue_indicators.length === 0 && <li className="text-xs text-slate-400 italic">No markers identified</li>}
-                        </ul>
-                      </div>
-                      <div className="space-y-4">
-                        <p className="text-[10px] font-black uppercase text-amber-600 tracking-widest">Typhoid Markers</p>
-                        <ul className="space-y-2">
-                           {results.typhoid_indicators.map((item, i) => (
-                             <li key={i} className="text-sm font-bold text-slate-700 flex items-center gap-2">
-                               <ChevronRight size={14} className="text-amber-300" /> {item}
-                             </li>
-                           ))}
-                           {results.typhoid_indicators.length === 0 && <li className="text-xs text-slate-400 italic">No markers identified</li>}
-                        </ul>
-                      </div>
-                   </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+            <div className="space-y-6">
+              <div className="p-8 bg-white border border-slate-100 rounded-[2rem] shadow-sm">
+                <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-2">
+                  <AlertTriangle size={14} className="text-red-500" /> Key Indicators
+                </h4>
+                <div className="space-y-6">
+                  <div className="space-y-4">
+                    <p className="text-[10px] font-black uppercase text-red-600 tracking-widest">Dengue Markers</p>
+                    <ul className="space-y-2">
+                      {results.dengue_indicators.map((item, i) => (
+                        <li key={i} className="text-sm font-bold text-slate-700 flex items-center gap-2">
+                          <ChevronRight size={14} className="text-red-300" /> {item}
+                        </li>
+                      ))}
+                      {results.dengue_indicators.length === 0 && <li className="text-xs text-slate-400 italic">No markers identified</li>}
+                    </ul>
+                  </div>
+                  <div className="space-y-4">
+                    <p className="text-[10px] font-black uppercase text-amber-600 tracking-widest">Typhoid Markers</p>
+                    <ul className="space-y-2">
+                      {results.typhoid_indicators.map((item, i) => (
+                        <li key={i} className="text-sm font-bold text-slate-700 flex items-center gap-2">
+                          <ChevronRight size={14} className="text-amber-300" /> {item}
+                        </li>
+                      ))}
+                      {results.typhoid_indicators.length === 0 && <li className="text-xs text-slate-400 italic">No markers identified</li>}
+                    </ul>
+                  </div>
                 </div>
               </div>
+            </div>
 
-              <div className="space-y-6">
-                 <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest px-2">Abnormal Value Log</h4>
-                 <div className="abnormal-values-list space-y-4 max-h-[500px] overflow-y-auto pr-2">
-                    {results.abnormal_values.map((item, i) => (
-                      <div key={i} className="abnormal-item p-6 bg-slate-50 border border-slate-100 rounded-3xl space-y-2 transition-all hover:bg-white hover:shadow-lg">
-                         <div className="flex items-center justify-between">
-                            <p className="text-xs font-black text-slate-800 uppercase tracking-tight">{item.parameter}</p>
-                            <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${
-                              item.status.includes("critical") ? "bg-red-500 text-white" : "bg-slate-200 text-slate-600"
-                            }`}>
-                              {item.status}
-                            </span>
-                         </div>
-                         <h5 className="text-2xl font-black text-slate-900">{item.value}</h5>
-                         <p className="text-[10px] font-bold text-slate-400">Ref Range: {item.normal_range}</p>
-                         <p className="text-xs font-medium text-red-600 italic mt-4 border-t border-slate-200/50 pt-3">
-                           {item.implication}
-                         </p>
-                      </div>
-                    ))}
-                 </div>
+            <div className="space-y-6">
+              <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest px-2">Abnormal Value Log</h4>
+              <div className="abnormal-values-list space-y-4 max-h-[500px] overflow-y-auto pr-2">
+                {results.abnormal_values.map((item, i) => (
+                  <div key={i} className="abnormal-item p-6 bg-slate-50 border border-slate-100 rounded-3xl space-y-2 transition-all hover:bg-white hover:shadow-lg">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-black text-slate-800 uppercase tracking-tight">{item.parameter}</p>
+                      <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${item.status.includes("critical") ? "bg-red-500 text-white" : "bg-slate-200 text-slate-600"
+                        }`}>
+                        {item.status}
+                      </span>
+                    </div>
+                    <h5 className="text-2xl font-black text-slate-900">{item.value}</h5>
+                    <p className="text-[10px] font-bold text-slate-400">Ref Range: {item.normal_range}</p>
+                    <p className="text-xs font-medium text-red-600 italic mt-4 border-t border-slate-200/50 pt-3">
+                      {item.implication}
+                    </p>
+                  </div>
+                ))}
               </div>
-           </div>
+            </div>
+          </div>
 
-           <div className="recommendation-box p-10 bg-slate-900 text-white rounded-[3rem] shadow-2xl relative overflow-hidden">
-              <div className="relative z-10 space-y-4">
-                <p className="text-xs font-black uppercase tracking-[0.3em] text-blue-400">Medical Recommendation</p>
-                <div className="flex gap-6">
-                   <div className="w-1.5 h-auto bg-blue-500 rounded-full" />
-                   <div className="space-y-6 flex-1">
-                      <p className="text-xl font-medium leading-relaxed italic pr-6 focus:outline-none">
-                        "{results.recommendation}"
-                      </p>
-                      <div className="flex flex-wrap gap-4">
-                         <div className="px-4 py-2 bg-white/5 border border-white/10 rounded-2xl flex items-center gap-3">
-                            <Clock size={16} className="text-blue-400" />
-                            <div>
-                               <p className="text-[9px] font-bold uppercase opacity-40">Urgency</p>
-                               <p className="text-sm font-black uppercase leading-none">{results.urgency}</p>
-                            </div>
-                         </div>
-                         <div className="px-4 py-2 bg-white/5 border border-white/10 rounded-2xl flex items-center gap-3">
-                            <Activity size={16} className="text-red-400" />
-                            <div>
-                               <p className="text-[9px] font-bold uppercase opacity-40">Risk Level</p>
-                               <p className="text-sm font-black uppercase leading-none">{results.severity}</p>
-                            </div>
-                         </div>
+          <div className="recommendation-box p-10 bg-slate-900 text-white rounded-[3rem] shadow-2xl relative overflow-hidden">
+            <div className="relative z-10 space-y-4">
+              <p className="text-xs font-black uppercase tracking-[0.3em] text-blue-400">Medical Recommendation</p>
+              <div className="flex gap-6">
+                <div className="w-1.5 h-auto bg-blue-500 rounded-full" />
+                <div className="space-y-6 flex-1">
+                  <p className="text-xl font-medium leading-relaxed italic pr-6 focus:outline-none">
+                    "{results.recommendation}"
+                  </p>
+                  <div className="flex flex-wrap gap-4">
+                    <div className="px-4 py-2 bg-white/5 border border-white/10 rounded-2xl flex items-center gap-3">
+                      <Clock size={16} className="text-blue-400" />
+                      <div>
+                        <p className="text-[9px] font-bold uppercase opacity-40">Urgency</p>
+                        <p className="text-sm font-black uppercase leading-none">{results.urgency}</p>
                       </div>
-                   </div>
+                    </div>
+                    <div className="px-4 py-2 bg-white/5 border border-white/10 rounded-2xl flex items-center gap-3">
+                      <Activity size={16} className="text-red-400" />
+                      <div>
+                        <p className="text-[9px] font-bold uppercase opacity-40">Risk Level</p>
+                        <p className="text-sm font-black uppercase leading-none">{results.severity}</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-           </div>
+            </div>
+          </div>
 
-           <footer className="text-center space-y-6 pt-10">
-              <p className="disclaimer text-[10px] font-black text-slate-400 uppercase tracking-widest max-w-2xl mx-auto leading-relaxed border-t border-slate-100 pt-8">
-                <ShieldAlert size={20} className="mx-auto mb-4 opacity-20" />
-                {results.disclaimer}
-              </p>
-              <button 
-                onClick={() => {setResults(null); setFormData({});}} 
-                className="text-xs font-black text-blue-600 hover:text-blue-700 transition-colors uppercase tracking-[0.4em]"
-              >
-                 Reset Analysis and New Report
-              </button>
-           </footer>
+          <footer className="text-center space-y-6 pt-10">
+            <p className="disclaimer text-[10px] font-black text-slate-400 uppercase tracking-widest max-w-2xl mx-auto leading-relaxed border-t border-slate-100 pt-8">
+              <ShieldAlert size={20} className="mx-auto mb-4 opacity-20" />
+              {results.disclaimer}
+            </p>
+            <button
+              onClick={() => { setResults(null); setFormData({}); }}
+              className="text-xs font-black text-blue-600 hover:text-blue-700 transition-colors uppercase tracking-[0.4em]"
+            >
+              Reset Analysis and New Report
+            </button>
+          </footer>
         </div>
       )}
     </div>
